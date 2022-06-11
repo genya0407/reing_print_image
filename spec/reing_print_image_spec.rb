@@ -5,7 +5,7 @@ RSpec.describe ReingPrintImage do
     expect(ReingPrintImage::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "reverses string" do
+    expect(RustReverse.reverse("cba")).to eq("abc")
   end
 end
