@@ -27,4 +27,7 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ["lib"]
   spec.extensions = ["ext/reing_print_image/extconf.rb"]
+
+  spec.add_dependency "rb_sys", "~> 0.9.4"
+  spec.add_dependency "rake-compiler", "~> 1.2.0"
 end
