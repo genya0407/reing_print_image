@@ -1,39 +1,28 @@
-extern crate rb_allocator;
-extern crate rb_sys;
+use magnus::{define_class, function, method, prelude::*, Error};
+use reing_text2image::TextImage;
+use std::path::Path;
 
-use rb_allocator::ruby_global_allocator;
-use rb_sys::*;
-use std::ffi::{CStr, CString};
-use std::os::raw::c_long;
-
-#[cfg(not(windows))]
-ruby_global_allocator!();
-ruby_extension!();
-
-#[no_mangle]
-unsafe extern "C" fn pub_reverse(_klass: RubyValue, mut input: RubyValue) -> RubyValue {
-    let ruby_string = CStr::from_ptr(rb_string_value_cstr(&mut input))
-        .to_str()
-        .unwrap();
-    let reversed = ruby_string.to_string().chars().rev().collect::<String>();
-    let reversed_cstring = CString::new(reversed).unwrap();
-    let size = ruby_string.len() as c_long;
-
-    rb_utf8_str_new(reversed_cstring.as_ptr(), size)
+#[magnus::wrap(class = "ReingPrintImage")]
+struct ReingPrintImage {
+    text_image: TextImage
 }
 
-#[allow(non_snake_case)]
-#[no_mangle]
-pub extern "C" fn Init_reing_print_image() {
-    let name = CString::new("RustReverse").unwrap();
-    let function_name = CString::new("reverse").unwrap();
-
-    unsafe {
-        let klass = rb_define_module(name.as_ptr());
-        let callback = std::mem::transmute::<
-            unsafe extern "C" fn(RubyValue, RubyValue) -> RubyValue,
-            unsafe extern "C" fn() -> RubyValue,
-        >(pub_reverse);
-        rb_define_module_function(klass, function_name.as_ptr(), Some(callback), 1)
+impl ReingPrintImage {
+    fn internal_new(text: String, brand: String, rgb_color: (u8, u8, u8)) -> Self {
+        Self {
+            text_image: TextImage::new(text, brand, rgb_color)
+        }
     }
+
+    fn save(&self, path: String) {
+        self.text_image.save_image(&Path::new(&path))
+    }
+}
+
+#[magnus::init]
+fn init() -> Result<(), Error> {
+    let class = define_class("ReingPrintImage", Default::default())?;
+    class.define_singleton_method("internal_new", function!(ReingPrintImage::internal_new, 3))?;
+    class.define_method("save", method!(ReingPrintImage::save, 1))?;
+    Ok(())
 }

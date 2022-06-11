@@ -5,7 +5,11 @@ RSpec.describe ReingPrintImage do
     expect(ReingPrintImage::VERSION).not_to be nil
   end
 
-  it "reverses string" do
-    expect(RustReverse.reverse("cba")).to eq("abc")
+  it "saves image" do
+    ReingPrintImage.new(
+      text: "これは回答です",
+      brand: "Reing",
+      rgb_color: [0, 0, 0]
+    ).save("tmp/result.png")
   end
 end
