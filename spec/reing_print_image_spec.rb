@@ -10,6 +10,15 @@ RSpec.describe ReingPrintImage do
       text: "これは回答です",
       brand: "Reing",
       rgb_color: [0, 0, 0]
-    ).save("tmp/result.png")
+    ).save("tmp/result_save.png")
+  end
+
+  it "generates binary" do
+    data = ReingPrintImage.new(
+      text: "これは回答です",
+      brand: "Reing",
+      rgb_color: [0, 0, 0]
+    ).encode_as_png
+    File.write("tmp/result_encode_as_png.png", data)
   end
 end
